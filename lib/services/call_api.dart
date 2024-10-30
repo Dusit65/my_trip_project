@@ -3,7 +3,7 @@
 //call_api.dart
 //This file will contain various methods used to call different APIs according to the functional purposes of the App.
 import 'dart:convert';
-import 'package:my_trip_project/models/trip';
+import 'package:my_trip_project/models/trip.dart';
 import 'package:my_trip_project/models/user.dart';
 import 'package:http/http.dart' as http;
 import 'package:my_trip_project/utils/env.dart';
