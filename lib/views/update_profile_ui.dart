@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_trip_project/models/user.dart';
 import 'package:my_trip_project/services/call_api.dart';
-import 'package:my_trip_project/views/home_ui.dart';
 
 class UpdateProfileUi extends StatefulWidget {
   User? user;
@@ -87,42 +86,40 @@ class _UpdateProfileUiState extends State<UpdateProfileUi> {
       ),
     );
   }
-  
+
   @override
   void initState() {
-  usernameCtrl.text = widget.user!.username!;
-  passwordCtrl.text = widget.user!.password!;
-  emailCtrl.text = widget.user!.email!;
-  super.initState();
-}
+    usernameCtrl.text = widget.user!.username!;
+    passwordCtrl.text = widget.user!.password!;
+    emailCtrl.text = widget.user!.email!;
+    super.initState();
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
 //AppBar
-      appBar: AppBar(
-        backgroundColor: Colors.orange,
-        title: Text(
-          'แก้ไขข้อมูลส่วนตัว',
-          style: TextStyle(
-            color: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.orange,
+          title: Text(
+            'แก้ไขข้อมูลส่วนตัว',
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          centerTitle: true,
+          leading: IconButton(
+            onPressed: () {
+              Navigator.pop(
+                context,
+              );
+            },
+            icon: Icon(
+              Icons.arrow_back_ios_new,
+              color: Colors.white,
+            ),
           ),
         ),
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomeUI(),
-              ),
-            );
-          },
-          icon: Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.white,
-          ),
-        ),
-      ),
-      body: SingleChildScrollView(
+        body: SingleChildScrollView(
             child: Center(
                 child: Column(children: [
           SizedBox(
@@ -327,22 +324,24 @@ class _UpdateProfileUiState extends State<UpdateProfileUi> {
                 } else if (emailCtrl.text.trim().length == 0) {
                   showCompleteDialog(context, 'กรุณาป้อนอีเมล');
                 } else {
-                //validate username and password from DB through API
-                //Create a variable to store data to be sent with the API
-                User user = User(
-                  user_id: widget.user!.user_id,
-                  username: usernameCtrl.text.trim(),
-                  password: passwordCtrl.text.trim(),
-                  email: emailCtrl.text.trim(),
-                );
-                //Call API
-                CallAPI.callupdateUserAPI(user).then((value) {
-                  if (value.message == '1') {
-                    showCompleteDialog(context, 'แก้ไขสําเร็จOvO').then((value) => Navigator.pop(context, user));
-                  } else {
-                    showCompleteDialog(context, 'แก้ไขไม่สําเร็จ โปรดลองอีกครั้งTwT');
-                  }
-                });
+                  //validate username and password from DB through API
+                  //Create a variable to store data to be sent with the API
+                  User user = User(
+                    user_id: widget.user!.user_id,
+                    username: usernameCtrl.text.trim(),
+                    password: passwordCtrl.text.trim(),
+                    email: emailCtrl.text.trim(),
+                  );
+                  //Call API
+                  CallAPI.callupdateUserAPI(user).then((value) {
+                    if (value.message == '1') {
+                      showCompleteDialog(context, 'แก้ไขสําเร็จOvO')
+                          .then((value) => Navigator.pop(context, user));
+                    } else {
+                      showCompleteDialog(
+                          context, 'แก้ไขไม่สําเร็จ โปรดลองอีกครั้งTwT');
+                    }
+                  });
                 }
               },
               child: Text(
@@ -363,7 +362,6 @@ class _UpdateProfileUiState extends State<UpdateProfileUi> {
               ),
             ),
           ),
-        ])))
-    );
+        ]))));
   }
 }
