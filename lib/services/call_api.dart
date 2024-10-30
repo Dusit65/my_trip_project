@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:my_trip_project/utils/env.dart';
 
 class CallAPI {
-  //Method call check_login_api.php -----------------------------------------------
+  //Method call CheckLoginAPI.php -----------------------------------------------
 
   static Future<User> callCheckLoginAPI(User user) async {
     //call to use API and then store the values received from the API in variables.
@@ -25,7 +25,7 @@ class CallAPI {
     }
   }
 
-  //Method call register_api.php (add new user user)-----------------------------------------------
+  //Method call newUserAPI.php (add new user user)-----------------------------------------------
 
   static Future<User> callnewUserAPI(User user) async {
     //call to use API and then store the values received from the API in variables.
@@ -54,8 +54,8 @@ class CallAPI {
       throw Exception('Failed to call API');
     }
   }
-  //Method call get_all_diaryfood_by_member_api.php (get all)-----------------------------------------------
-  static Future<List<Trip>> callGetAllDiaryfoodByMemberAPI(Trip trip) async {
+  //Method call getAlltripByUserId.php (get all)-----------------------------------------------
+  static Future<List<Trip>> callgetAlltripByUserId(Trip trip) async {
     //call to use API and then store the values received from the API in variables.
     final responseData = await http.post(
       Uri.parse(Env.hostName + '/mt6552410011/apis/getAlltripByUserId.php'),
@@ -65,9 +65,24 @@ class CallAPI {
     if (responseData.statusCode == 200) {
      final dataList = await jsonDecode(responseData.body).map<Trip>((json){
        return Trip.fromJson(json);
-     });
+     }).toList();
 
      return dataList;
+    } else {
+      throw Exception('Failed to call API');
+    }
+  }
+
+  //Method call newTripAPI.php (add new)-----------------------------------------------
+  static Future<Trip> callnewTripAPI(Trip trip) async {
+    //call to use API and then store the values received from the API in variables.
+    final responseData = await http.post(
+      Uri.parse(Env.hostName + '/mydiaryfood/apis/newTripAPI.php'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(trip.toJson()),
+    );
+    if (responseData.statusCode == 200) {
+      return Trip.fromJson(jsonDecode(responseData.body));
     } else {
       throw Exception('Failed to call API');
     }

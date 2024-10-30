@@ -1,4 +1,5 @@
 class Trip {
+  String? message;
   String? tripId;
   String? userId;
   String? startDate;
@@ -9,7 +10,8 @@ class Trip {
   String? cost;
 
   Trip(
-      {this.tripId,
+      {this.message,
+      this.tripId,
       this.userId,
       this.startDate,
       this.endDate,
@@ -19,6 +21,7 @@ class Trip {
       this.cost});
 //Convert JSON file to App data
   Trip.fromJson(Map<String, dynamic> json) {
+    message = json['message'];
     tripId = json['trip_id'];
     userId = json['user_id'];
     startDate = json['start_date'];
@@ -31,6 +34,7 @@ class Trip {
 //Convert App data to JSON file
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['message'] = this.message;
     data['trip_id'] = this.tripId;
     data['user_id'] = this.userId;
     data['start_date'] = this.startDate;
