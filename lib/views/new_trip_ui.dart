@@ -1,4 +1,4 @@
-// ignore_for_file: unused_field, unused_element
+// ignore_for_file: unused_field, unused_element, unused_local_variable
 
 import 'dart:convert';
 import 'dart:io';
@@ -6,6 +6,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:my_trip_project/models/trip.dart';
+import 'package:my_trip_project/services/call_api.dart';
 
 class NewTripUi extends StatefulWidget {
   const NewTripUi({super.key});
@@ -15,17 +17,18 @@ class NewTripUi extends StatefulWidget {
 }
 
 class _NewTripUiState extends State<NewTripUi> {
-  //======================================================================================================
-//Variable/Method group
+//=========================================Variable v =================================================
 
 //Textfield Controller
-TextEditingController foodShopnameCtrl = TextEditingController();
-  TextEditingController foodPayCtrl = TextEditingController();
-  TextEditingController foodDateCtrl = TextEditingController();
+TextEditingController locationNameCtrl = TextEditingController();
+  TextEditingController costCtrl = TextEditingController();
+  TextEditingController startDateCtrl = TextEditingController();
+  TextEditingController endDateCtrl = TextEditingController();
+  TextEditingController latitudeCtrl = TextEditingController();
+  TextEditingController longitudeCtrl = TextEditingController();
 //image variable
   File? _imageSelected;
   
-
 //Variable store camera/gallery convert to Base64 for sent to api
   String _image64Selected = '';
 
@@ -33,99 +36,15 @@ TextEditingController foodShopnameCtrl = TextEditingController();
   int? meal;
 
 //variable date
-  String? _foodDateSelected;
-
-//varable province
-  String? _foodProvinceSelected;
-
-//ประกาศ/สร้างตัวแปรเพื่อเก็บข้อมูลรายการที่จะเอาไปใช้กับ DropdownButton
-  List<DropdownMenuItem<String>> provinceItems = [
-    'กรุงเทพมหานคร',
-    'กระบี่',
-    'กาญจนบุรี',
-    'กาฬสินธุ์',
-    'กำแพงเพชร',
-    'ขอนแก่น',
-    'จันทบุรี',
-    'ฉะเชิงเทรา',
-    'ชลบุรี',
-    'ชัยนาท',
-    'ชัยภูมิ',
-    'ชุมพร',
-    'เชียงราย',
-    'เชียงใหม่',
-    'ตรัง',
-    'ตราด',
-    'ตาก',
-    'นครนายก',
-    'นครปฐม',
-    'นครพนม',
-    'นครราชสีมา',
-    'นครศรีธรรมราช',
-    'นครสวรรค์',
-    'นนทบุรี',
-    'นราธิวาส',
-    'น่าน',
-    'บึงกาฬ',
-    'บุรีรัมย์',
-    'ปทุมธานี',
-    'ประจวบคีรีขันธ์',
-    'ปราจีนบุรี',
-    'ปัตตานี',
-    'พระนครศรีอยุธยา',
-    'พะเยา',
-    'พังงา',
-    'พัทลุง',
-    'พิจิตร',
-    'พิษณุโลก',
-    'เพชรบุรี',
-    'เพชรบูรณ์',
-    'แพร่',
-    'ภูเก็ต',
-    'มหาสารคาม',
-    'มุกดาหาร',
-    'แม่ฮ่องสอน',
-    'ยโสธร',
-    'ยะลา',
-    'ร้อยเอ็ด',
-    'ระนอง',
-    'ระยอง',
-    'ราชบุรี',
-    'ลพบุรี',
-    'ลำปาง',
-    'ลำพูน',
-    'เลย',
-    'ศรีสะเกษ',
-    'สกลนคร',
-    'สงขลา',
-    'สตูล',
-    'สมุทรปราการ',
-    'สมุทรสงคราม',
-    'สมุทรสาคร',
-    'สระแก้ว',
-    'สระบุรี',
-    'สิงห์บุรี',
-    'สุโขทัย',
-    'สุพรรณบุรี',
-    'สุราษฎร์ธานี',
-    'สุรินทร์',
-    'หนองคาย',
-    'หนองบัวลำภู',
-    'อ่างทอง',
-    'อำนาจเจริญ',
-    'อุดรธานี',
-    'อุตรดิตถ์',
-    'อุทัยธานี',
-    'อุบลราชธานี'
-  ]
-      .map((e) => DropdownMenuItem<String>(
-            value: e,
-            child: Text(e),
-          ))
-      .toList();
-
+  String? _startDateSelected;
+  String? _endDateSelected;
 //variable lat lng ที่ดึงมา
-  String? _foodLat, _foodLng;
+  String? _latitude, _longitude;
+  
+
+//==================================Method / Function v===============================================
+//++++++++++++++++Latitude Longitude+++++++++++++++++++++++++
+
 
 //ตัวแปรเก็บตําแหน่งที่ Latitude, Longitude
   Position? currentPosition;
@@ -134,8 +53,8 @@ TextEditingController foodShopnameCtrl = TextEditingController();
     Position position = await _determinePosition();
     setState(() {
       currentPosition = position;
-      _foodLat = position.latitude.toString();
-      _foodLng = position.longitude.toString();
+      _latitude = position.latitude.toString();
+      _longitude = position.longitude.toString();
     });
   }
   Future<Position> _determinePosition() async {
@@ -152,7 +71,9 @@ TextEditingController foodShopnameCtrl = TextEditingController();
  
     return await Geolocator.getCurrentPosition();
   }
+//++++++++++++++++Latitude Longitude+++++++++++++++++++++++++
 
+//-----------------Camera/Gallery-----------------------------
 //open camera method
   Future<void> _openCamera() async {
     final XFile? _picker = await ImagePicker().pickImage(
@@ -184,22 +105,45 @@ TextEditingController foodShopnameCtrl = TextEditingController();
     }
   }
 
-//Method open calendar
-  Future<void> _openCalendar() async {
+//-----------------Camera/Gallery-----------------------------
+
+//++++++++++++++++Calendar+++++++++++++++++++++++++++++++
+//Method open calendar start trip
+  Future<void> _openCalendarStart() async {
     final DateTime? _picker = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(1900),
       lastDate: DateTime(2100),
     );
-/*
+
     if (_picker != null) {
       setState(() {
-        foodDateCtrl.text = convertToThaiDate(_picker);
-        _foodDateSelected = _picker.toString().substring(0, 10);
+        // startDateCtrl.text = convertToThaiDate(_picker);
+        // _startDateSelected = _picker.toString().substring(0, 10);
+         startDateCtrl.text = _picker.toString().substring(0, 10);
       });
     }
-*/
+
+  }
+
+  //Method open calendar end trip
+  Future<void> _openCalendarEnd() async {
+    final DateTime? _picker = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2100),
+    );
+
+    if (_picker != null) {
+      setState(() {  
+        // endDateCtrl.text = convertToThaiDate(_picker);
+        // _endDateSelected = _picker.toString().substring(0, 10);
+         endDateCtrl.text = _picker.toString().substring(0, 10);
+      });
+    }
+
   }
 /*
 //เมธอดแปลงวันที่แบบสากล (ปี ค.ศ.-เดือน ตัวเลข-วัน ตัวเลข) ให้เป็นวันที่แบบไทย (วัน เดือน ปี)
@@ -250,8 +194,76 @@ TextEditingController foodShopnameCtrl = TextEditingController();
     return day + ' ' + month + ' พ.ศ. ' + year;
   }
   */
+//++++++++++++++++Calendar+++++++++++++++++++++++++++++++
 
-//======================================================================================================
+//-------------------------------Show Dialog -------------------------------
+//Method showWaringDialog
+  showWaringDialog(context, msg) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Align(
+          alignment: Alignment.center,
+          child: Text(
+            'คำเตือน',
+          ),
+        ),
+        content: Text(
+          msg,
+        ),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'ตกลง',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+//Method showCompleteDialog
+  Future showCompleteDialog(context, msg) {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Align(
+          alignment: Alignment.center,
+          child: Text(
+            'ผลการทำงาน',
+          ),
+        ),
+        content: Text(
+          msg,
+        ),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'ตกลง',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+//-------------------------------------------------------------------
+//==========================================================================================
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
@@ -297,7 +309,7 @@ TextEditingController foodShopnameCtrl = TextEditingController();
                     width: MediaQuery.of(context).size.width * 0.5,
                     height: MediaQuery.of(context).size.width * 0.5,
                     decoration: BoxDecoration(
-                      border: Border.all(width: 4, color: Colors.green),
+                      border: Border.all(width: 4, color: Colors.orange),
                       shape: BoxShape.circle,
                       image: DecorationImage(
                         image: _imageSelected == null
@@ -391,7 +403,7 @@ TextEditingController foodShopnameCtrl = TextEditingController();
                   top: MediaQuery.of(context).size.height * 0.015,
                 ),
                 child: TextField(
-                  controller: foodShopnameCtrl,
+                  controller: locationNameCtrl,
                   decoration: InputDecoration(
                     hintText: 'ป้อนชื่อสถานที่',
                     hintStyle: TextStyle(
@@ -409,6 +421,330 @@ TextEditingController foodShopnameCtrl = TextEditingController();
                     ),
                   ),
                 ),
+              ),
+              //Text cost
+              Padding(
+                padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width * 0.1,
+                  top: MediaQuery.of(context).size.height * 0.02,
+                ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'ค่าใช้จ่าย',
+                    style: TextStyle(
+                      color: Colors.grey[800],
+                      fontSize: MediaQuery.of(context).size.height * 0.02,
+                    ),
+                  ),
+                ),
+              ),
+              //TextField cost
+              Padding(
+                padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width * 0.1,
+                  right: MediaQuery.of(context).size.width * 0.1,
+                  top: MediaQuery.of(context).size.height * 0.015,
+                ),
+                child: TextField(
+                  controller: costCtrl,
+                  decoration: InputDecoration(
+                    hintText: 'ป้อนค่าใช้จ่าย',
+                    hintStyle: TextStyle(
+                      color: Colors.grey[400],
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.orange,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.orange,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              //Text start date
+              Padding(
+                padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width * 0.1,
+                  top: MediaQuery.of(context).size.height * 0.02,
+                ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'วันที่เริ่มเดินทาง',
+                    style: TextStyle(
+                      color: Colors.grey[800],
+                      fontSize: MediaQuery.of(context).size.height * 0.02,
+                    ),
+                  ),
+                ),
+              ),
+              //TextField start date
+              Padding(
+                padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width * 0.1,
+                  right: MediaQuery.of(context).size.width * 0.1,
+                  top: MediaQuery.of(context).size.height * 0.02,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: startDateCtrl,
+                        enabled: false,
+                        decoration: InputDecoration(
+                          hintText: 'เลือกวันที่เริ่มเดินทาง',
+                          hintStyle: TextStyle(
+                            color: Colors.grey[400],
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.orange,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.orange,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        _openCalendarStart();
+                      },
+                      icon: Icon(
+                        Icons.calendar_month,
+                        color: Colors.orange,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              //Text end date
+              Padding(
+                padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width * 0.1,
+                  top: MediaQuery.of(context).size.height * 0.02,
+                ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'วันที่สิ้นสุดเดินทาง',
+                    style: TextStyle(
+                      color: Colors.grey[800],
+                      fontSize: MediaQuery.of(context).size.height * 0.02,
+                    ),
+                  ),
+                ),
+              ),
+              //TextField end date
+              Padding(
+                padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width * 0.1,
+                  right: MediaQuery.of(context).size.width * 0.1,
+                  top: MediaQuery.of(context).size.height * 0.02,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: endDateCtrl,
+                        enabled: false,
+                        decoration: InputDecoration(
+                          hintText: 'เลือกวันที่สิ้นสุดการเดินทาง',
+                          hintStyle: TextStyle(
+                            color: Colors.grey[400],
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.orange,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.orange,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        _openCalendarEnd();
+                      },
+                      icon: Icon(
+                        Icons.calendar_month,
+                        color: Colors.orange,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.02,
+              ),
+              //Text Latitude
+              Padding(
+                padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width * 0.1,
+                ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'ละติจูด',
+                    style: TextStyle(
+                      color: Colors.grey[800],
+                      fontSize: MediaQuery.of(context).size.height * 0.02,
+                    ),
+                  ),
+                ),
+              ),
+              //TextField Latitude
+              Padding(
+                padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width * 0.1,
+                  right: MediaQuery.of(context).size.width * 0.1,
+                  top: MediaQuery.of(context).size.height * 0.015,
+                ),
+                child: TextField(
+                  controller: latitudeCtrl,
+                  decoration: InputDecoration(
+                    hintText: 'ป้อนตำแหน่งละติจูด',
+                    hintStyle: TextStyle(
+                      color: Colors.grey[400],
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.orange,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.orange,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              //Text Longitude
+              Padding(
+                padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width * 0.1,
+                ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'ลองจิจูด',
+                    style: TextStyle(
+                      color: Colors.grey[800],
+                      fontSize: MediaQuery.of(context).size.height * 0.02,
+                    ),
+                  ),
+                ),
+              ),
+              //TextField Longitude
+              Padding(
+                padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width * 0.1,
+                  right: MediaQuery.of(context).size.width * 0.1,
+                  top: MediaQuery.of(context).size.height * 0.015,
+                ),
+                child: TextField(
+                  controller: longitudeCtrl,
+                  decoration: InputDecoration(
+                    hintText: 'ป้อนตำแหน่งลองจิจูด',
+                    hintStyle: TextStyle(
+                      color: Colors.grey[400],
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.orange,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.orange,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.02,
+              ),
+              //save button
+              ElevatedButton(
+                onPressed: () {
+                //Validate
+                if (locationNameCtrl.text.trim().length == 0) {
+                  showWaringDialog(context, 'ป้อนชื่อสถานที่ด้วย');
+                } else if (costCtrl.text.trim().length == 0) {
+                  showWaringDialog(context, 'ป้อนค่าใช้จ่ายด้วย');
+                } else if (startDateCtrl.text.trim().length == 0) {
+                  showWaringDialog(context, 'เลือกวันที่เริ่มเดินทางด้วย');
+                } else if (endDateCtrl.text.trim().length == 0) {
+                  showWaringDialog(context, 'เลือกวันที่สิ้นสุดเดินทางด้วย');
+                } else {
+                    //validate username and password from DB through API
+                    //Create a variable to store data to be sent with the API
+                  Trip member = Trip(
+                        locationName: locationNameCtrl.text.trim(),
+                        cost: costCtrl.text.trim(),
+                        startDate: startDateCtrl.text.trim(),
+                        endDate: endDateCtrl.text.trim(),
+                      );
+                    //call API
+                    CallAPI.callnewTripAPI(member).then((value) {
+                        if (value.message == '1') {
+                          showCompleteDialog(context, 'บันทึกการเดินทางสําเร็จOvO').then((value) => Navigator.pop(context));
+                        } else {
+                          showCompleteDialog(context, 'บันทึกการเดินทางไม่สําเร็จ โปรดลองอีกครั้งTwT');
+                        }
+                      });
+                }
+                },
+                child: Text(
+                  'บันทึกการเดินทาง',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  fixedSize: Size(
+                    MediaQuery.of(context).size.width * 0.8,
+                    MediaQuery.of(context).size.height * 0.07,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.02,
+              ),
+//cancel button              
+              ElevatedButton(
+                onPressed: () {},
+                child: Text(
+                  'ยกเลิก',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red[400],
+                  fixedSize: Size(
+                    MediaQuery.of(context).size.width * 0.8,
+                    MediaQuery.of(context).size.height * 0.07,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.1,
               ),
               ],
             ),
