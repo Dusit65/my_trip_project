@@ -2,14 +2,14 @@
 
 class User {
   String? message;
-  String? userId;
+  String? user_id;
   String? username;
   String? password;
   String? email;
 
   User({
     this.message,
-    this.userId,
+    this.user_id,
     this.username,
     this.password,
     this.email,
@@ -18,7 +18,7 @@ class User {
 //Convert JSON file to App data
   User.fromJson(Map<String, dynamic> json) {
     message = json['message'];
-    userId = json['userId'];
+    user_id = json['user_id'];
     username = json['username'];
     password = json['password'];
     email = json['email'];
@@ -27,7 +27,7 @@ class User {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['message'] = this.message;
-    data['userId'] = this.userId;
+    data['user_id'] = this.user_id;
     data['username'] = this.username;
     data['password'] = this.password;
     data['email'] = this.email;

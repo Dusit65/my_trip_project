@@ -1,4 +1,11 @@
+// ignore_for_file: unused_field, unused_element
+
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 
 class NewTripUi extends StatefulWidget {
   const NewTripUi({super.key});
@@ -16,8 +23,8 @@ TextEditingController foodShopnameCtrl = TextEditingController();
   TextEditingController foodPayCtrl = TextEditingController();
   TextEditingController foodDateCtrl = TextEditingController();
 //image variable
+  File? _imageSelected;
   
-  // File? _imageSelected;
 
 //Variable store camera/gallery convert to Base64 for sent to api
   String _image64Selected = '';
@@ -119,7 +126,7 @@ TextEditingController foodShopnameCtrl = TextEditingController();
 
 //variable lat lng ที่ดึงมา
   String? _foodLat, _foodLng;
-/*
+
 //ตัวแปรเก็บตําแหน่งที่ Latitude, Longitude
   Position? currentPosition;
 //method ดึงตําแหน่งปัจจุบัน
@@ -158,6 +165,7 @@ TextEditingController foodShopnameCtrl = TextEditingController();
       setState(() {
         _imageSelected = File(_picker.path);
         _image64Selected = base64Encode(_imageSelected!.readAsBytesSync());
+       
       });
     }
   }
@@ -184,15 +192,16 @@ TextEditingController foodShopnameCtrl = TextEditingController();
       firstDate: DateTime(1900),
       lastDate: DateTime(2100),
     );
-
+/*
     if (_picker != null) {
       setState(() {
         foodDateCtrl.text = convertToThaiDate(_picker);
         _foodDateSelected = _picker.toString().substring(0, 10);
       });
     }
+*/
   }
-
+/*
 //เมธอดแปลงวันที่แบบสากล (ปี ค.ศ.-เดือน ตัวเลข-วัน ตัวเลข) ให้เป็นวันที่แบบไทย (วัน เดือน ปี)
   //                             2023-11-25
   convertToThaiDate(date) {
@@ -248,9 +257,9 @@ TextEditingController foodShopnameCtrl = TextEditingController();
     return  Scaffold(
       //AppBar
       appBar: AppBar(
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.orange,
         title: Text(
-          'เพิ่มบันทึกการกิน',
+          'เพิ่มบันทึกการเดินทาง',
           style: TextStyle(
             color: Colors.white,
           ),
@@ -268,6 +277,144 @@ TextEditingController foodShopnameCtrl = TextEditingController();
           ),
         ),
       ),
+
+      //Body
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SingleChildScrollView(
+          child: Center(
+            child: Column(
+              children: [
+                SizedBox(
+                height: MediaQuery.of(context).size.height * 0.075,
+              ),
+//Avatar
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.5,
+                    height: MediaQuery.of(context).size.width * 0.5,
+                    decoration: BoxDecoration(
+                      border: Border.all(width: 4, color: Colors.green),
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: _imageSelected == null
+                            ? AssetImage(
+                                'assets/images/banner map.jpg',
+                              )
+                            : FileImage(_imageSelected!),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+//Icon camera
+                  IconButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) => Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            //open camera
+                            ListTile(
+                              onTap: () {
+                                _openCamera().then(
+                                  (value) => Navigator.pop(context),
+                                );
+                              },
+                              leading: Icon(
+                                Icons.camera_alt,
+                                color: Colors.red,
+                              ),
+                              title: Text(
+                                'Open Camera...',
+                              ),
+                            ),
+
+                            Divider(
+                              color: Colors.grey,
+                              height: 5.0,
+                            ),
+
+                            //open gallery
+                            ListTile(
+                              onTap: () {
+                                _openGallery().then(
+                                  (value) => Navigator.pop(context),
+                                );
+                              },
+                              leading: Icon(
+                                Icons.browse_gallery,
+                                color: Colors.blue,
+                              ),
+                              title: Text(
+                                'Open Gallery...',
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    icon: Icon(
+                      Icons.camera_alt,
+                      color: Colors.orange,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.09,
+              ),
+              //Text locationName
+              Padding(
+                padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width * 0.1,
+                ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'สถานที่เดินทาง',
+                    style: TextStyle(
+                      color: Colors.grey[800],
+                      fontSize: MediaQuery.of(context).size.height * 0.02,
+                    ),
+                  ),
+                ),
+              ),
+              //TextField locationName
+              Padding(
+                padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width * 0.1,
+                  right: MediaQuery.of(context).size.width * 0.1,
+                  top: MediaQuery.of(context).size.height * 0.015,
+                ),
+                child: TextField(
+                  controller: foodShopnameCtrl,
+                  decoration: InputDecoration(
+                    hintText: 'ป้อนชื่อสถานที่',
+                    hintStyle: TextStyle(
+                      color: Colors.grey[400],
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.orange,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.orange,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              ],
+            ),
+          ),
+        ),
+        ),
     );
   }
 }

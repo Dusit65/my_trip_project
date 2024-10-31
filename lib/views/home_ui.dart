@@ -30,7 +30,7 @@ class _HomeUIState extends State<HomeUI> {
   @override
   void initState() {
     Trip trip = Trip(
-      userId: widget.users!.userId,
+      user_id: widget.users!.user_id,
     );
     getAlltripByUserId(trip);
     super.initState();
@@ -124,15 +124,22 @@ class _HomeUIState extends State<HomeUI> {
                           return Column(
                             children: [
                             ListTile(
-                              // onTap: () {},
-                              /*
+                              onTap: () {},
+                              
                               tileColor: index % 2 == 0
                                   ? Colors.blue[50]
                                   : Colors.orange[50],
-                                  */
+                                  
                               title: Text(
                                 snapshot.data![index].locationName!,
                               ),
+                              subtitle: Text(
+                                    'วันที่บันทึก : ${snapshot.data![index].locationName}',
+                                  ),
+                                  trailing: Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: Colors.orange[800],
+                                  ),
                             ),
                             Divider(),
                           ]);
