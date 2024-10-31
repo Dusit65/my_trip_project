@@ -81,7 +81,7 @@ class CallAPI {
   static Future<Trip> callnewTripAPI(Trip trip) async {
     //call to use API and then store the values received from the API in variables.
     final responseData = await http.post(
-      Uri.parse(Env.hostName + '/mydiaryfood/apis/newTripAPI.php'),
+      Uri.parse(Env.hostName + '/mt6552410011/apis/newTripAPI.php'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(trip.toJson()),
     );

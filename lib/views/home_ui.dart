@@ -9,8 +9,10 @@ import 'package:my_trip_project/views/update_profile_ui.dart';
 
 class HomeUI extends StatefulWidget {
   User? users;
+  Trip? trip;
 
-  HomeUI({super.key, this.users});
+  HomeUI({super.key, this.users, this.trip});
+  
 
   @override
   State<HomeUI> createState() => _HomeUIState();
@@ -134,12 +136,13 @@ class _HomeUIState extends State<HomeUI> {
                                 snapshot.data![index].locationName!,
                               ),
                               subtitle: Text(
-                                    'วันที่บันทึก : ${snapshot.data![index].locationName}',
+                                    'วันที่เริ่มการเดินทาง : ${snapshot.data![index].startDate}',
                                   ),
                                   trailing: Icon(
                                     Icons.arrow_forward_ios,
                                     color: Colors.orange[800],
                                   ),
+                              
                             ),
                             Divider(),
                           ]);
@@ -183,7 +186,7 @@ class _HomeUIState extends State<HomeUI> {
           Icons.add,
           color: Colors.white,
         ),
-        backgroundColor: Colors.green[800],
+        backgroundColor: Colors.orange[800],
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(100),
         ),
