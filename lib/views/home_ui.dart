@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, must_be_immutable
+// ignore_for_file: prefer_const_constructors, must_be_immutable, unused_local_variable
 
 import 'package:flutter/material.dart';
 import 'package:my_trip_project/models/user.dart';
@@ -8,9 +8,9 @@ import 'package:my_trip_project/views/new_trip_ui.dart';
 import 'package:my_trip_project/views/update_profile_ui.dart';
 
 class HomeUI extends StatefulWidget {
-  User? user;
+  User? users;
 
-  HomeUI({super.key, this.user});
+  HomeUI({super.key, this.users});
 
   @override
   State<HomeUI> createState() => _HomeUIState();
@@ -21,12 +21,21 @@ class _HomeUIState extends State<HomeUI> {
   Future<List<Trip>>? tripData;
 
   //สร้างฟังก์ชันเรียกใช้API
-  getAlltripByUserId(Trip trip)  {
+  getAlltripByUserId(Trip trip) {
     setState(() {
       tripData = CallAPI.callgetAlltripByUserId(trip);
     });
   }
+
   @override
+  void initState() {
+    Trip trip = Trip(
+      userId: widget.users!.userId,
+    );
+    getAlltripByUserId(trip);
+    super.initState();
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.orange[50],
@@ -63,14 +72,14 @@ class _HomeUIState extends State<HomeUI> {
           ),
 //FullName
           Text(
-            'ชื่อผู้ใช้ : ${widget.user!.username}',
+            'ชื่อผู้ใช้ : ${widget.users!.username}',
           ),
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.025,
           ),
 // //Email
           Text(
-            'อีเมล : ${widget.user!.email}',
+            'อีเมล : ${widget.users!.email}',
           ),
 //update profile button
           TextButton(
@@ -78,16 +87,18 @@ class _HomeUIState extends State<HomeUI> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => UpdateProfileUi(user: widget.user,),
+                  builder: (context) => UpdateProfileUi(
+                    user: widget.users,
+                  ),
                 ),
-              ).then((value){
-                if (value != null){
-                //เอาค่าที่ส่งกลับมาหลังจากแก้ไขเสร็จมาแก้ไขให้กับwidget.user
-                setState(() {
-                  widget.user?.username = value.username;
-                  widget.user?.password = value.password;
-                  widget.user?.email = value.email;
-                });
+              ).then((value) {
+                if (value != null) {
+                  //เอาค่าที่ส่งกลับมาหลังจากแก้ไขเสร็จมาแก้ไขให้กับwidget.user
+                  setState(() {
+                    widget.users?.username = value.username;
+                    widget.users?.password = value.password;
+                    widget.users?.email = value.email;
+                  });
                 }
               });
             },
@@ -104,38 +115,33 @@ class _HomeUIState extends State<HomeUI> {
               future: tripData,
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                    if(snapshot.data![0].message == "0"){
-                      return Text("ยังไม่ได้บันทึกการกิน");
-                    }else{
-                      return ListView.builder(
+                  if (snapshot.data![0].message == "0") {
+                    return Text("ยังไม่ได้บันทึกการเดินทาง");
+                  } else {
+                    return ListView.builder(
                         itemCount: snapshot.data!.length,
                         itemBuilder: (context, index) {
                           return Column(
                             children: [
-                              ListTile(
-                                onTap: () {},
-                                tileColor: index % 2 == 0 ? Colors.red[50] : Colors.green[50],
-                                title: Text(
-                                  snapshot.data![index].locationName!,
-                                  ),
-                                  subtitle: Text(
-                                    'วันที่บันทึก : ${snapshot.data![index].startDate}',
-                                  ),
-                                  trailing: Icon(
-                                    Icons.arrow_forward_ios,
-                                    color: Colors.green[800],
-                                  ),
-                                ),
-                              Divider(),
-                            ],
-                          );
-                        }
-                      );
-                    }
-                }else{
+                            ListTile(
+                              // onTap: () {},
+                              /*
+                              tileColor: index % 2 == 0
+                                  ? Colors.blue[50]
+                                  : Colors.orange[50],
+                                  */
+                              title: Text(
+                                snapshot.data![index].locationName!,
+                              ),
+                            ),
+                            Divider(),
+                          ]);
+                        });
+                  }
+                } else {
                   return CircularProgressIndicator();
                 }
-              }
+              },
             ),
           ),
           SizedBox(
@@ -143,13 +149,12 @@ class _HomeUIState extends State<HomeUI> {
           ),
         ],
       )),
+//new trip button
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => NewTripUi()
-            ),
+            MaterialPageRoute(builder: (context) => NewTripUi()),
           );
         },
         // child: Icon(
@@ -173,9 +178,10 @@ class _HomeUIState extends State<HomeUI> {
         ),
         backgroundColor: Colors.green[800],
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(100),),
+          borderRadius: BorderRadius.circular(100),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

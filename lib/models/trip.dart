@@ -18,7 +18,7 @@ class Trip {
       this.locationName,
       this.latitude,
       this.longitude,
-      this.cost});
+      this.cost, String? user_id});
 //Convert JSON file to App data
   Trip.fromJson(Map<String, dynamic> json) {
     message = json['message'];

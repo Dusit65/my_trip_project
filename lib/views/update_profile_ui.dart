@@ -327,7 +327,7 @@ class _UpdateProfileUiState extends State<UpdateProfileUi> {
                   //validate username and password from DB through API
                   //Create a variable to store data to be sent with the API
                   User user = User(
-                    user_id: widget.user!.user_id,
+                    userId: widget.user!.userId,
                     username: usernameCtrl.text.trim(),
                     password: passwordCtrl.text.trim(),
                     email: emailCtrl.text.trim(),

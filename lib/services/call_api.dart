@@ -10,7 +10,6 @@ import 'package:my_trip_project/utils/env.dart';
 
 class CallAPI {
   //Method call CheckLoginAPI.php -----------------------------------------------
-
   static Future<User> callCheckLoginAPI(User user) async {
     //call to use API and then store the values received from the API in variables.
     final responseData = await http.post(
@@ -25,8 +24,8 @@ class CallAPI {
     }
   }
 
-  //Method call newUserAPI.php (add new user user)-----------------------------------------------
 
+  //Method call newUserAPI.php (add new user user)-----------------------------------------------
   static Future<User> callnewUserAPI(User user) async {
     //call to use API and then store the values received from the API in variables.
     final responseData = await http.post(
@@ -40,6 +39,8 @@ class CallAPI {
       throw Exception('Failed to call API');
     }
   }
+
+
   //Method call updateUserAPI.php (update user)-----------------------------------------------
   static Future<User> callupdateUserAPI(User user) async {
     //call to use API and then store the values received from the API in variables.
@@ -54,6 +55,8 @@ class CallAPI {
       throw Exception('Failed to call API');
     }
   }
+  
+  
   //Method call getAlltripByUserId.php (get all)-----------------------------------------------
   static Future<List<Trip>> callgetAlltripByUserId(Trip trip) async {
     //call to use API and then store the values received from the API in variables.
@@ -72,6 +75,7 @@ class CallAPI {
       throw Exception('Failed to call API');
     }
   }
+
 
   //Method call newTripAPI.php (add new)-----------------------------------------------
   static Future<Trip> callnewTripAPI(Trip trip) async {
