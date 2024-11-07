@@ -1,4 +1,4 @@
-// ignore_for_file: unused_field, unused_element, unused_local_variable
+// ignore_for_file: unused_field, unused_element, unused_local_variable, must_be_immutable, unnecessary_null_comparison
 
 import 'dart:convert';
 import 'dart:io';
@@ -10,7 +10,8 @@ import 'package:my_trip_project/models/trip.dart';
 import 'package:my_trip_project/services/call_api.dart';
 
 class NewTripUi extends StatefulWidget {
-  const NewTripUi({super.key});
+  String user_id;
+   NewTripUi({super.key, required this.user_id});
 
   @override
   State<NewTripUi> createState() => _NewTripUiState();
@@ -24,8 +25,7 @@ TextEditingController locationNameCtrl = TextEditingController();
   TextEditingController costCtrl = TextEditingController();
   TextEditingController startDateCtrl = TextEditingController();
   TextEditingController endDateCtrl = TextEditingController();
-  TextEditingController latitudeCtrl = TextEditingController();
-  TextEditingController longitudeCtrl = TextEditingController();
+
 //image variable
   File? _imageSelected;
   
@@ -38,16 +38,17 @@ TextEditingController locationNameCtrl = TextEditingController();
 //variable date
   String? _startDateSelected;
   String? _endDateSelected;
+
 //variable lat lng ที่ดึงมา
   String? _latitude, _longitude;
-  
+  Position? currentPosition;
 
 //==================================Method / Function v===============================================
 //++++++++++++++++Latitude Longitude+++++++++++++++++++++++++
 
 
 //ตัวแปรเก็บตําแหน่งที่ Latitude, Longitude
-  Position? currentPosition;
+
 //method ดึงตําแหน่งปัจจุบัน
   void _getCurrentLocation() async {
     Position position = await _determinePosition();
@@ -57,18 +58,19 @@ TextEditingController locationNameCtrl = TextEditingController();
       _longitude = position.longitude.toString();
     });
   }
+
   Future<Position> _determinePosition() async {
     LocationPermission permission;
- 
+
     permission = await Geolocator.checkPermission();
- 
+
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         return Future.error('Location Permissions are denied');
       }
     }
- 
+
     return await Geolocator.getCurrentPosition();
   }
 //++++++++++++++++Latitude Longitude+++++++++++++++++++++++++
@@ -264,6 +266,12 @@ TextEditingController locationNameCtrl = TextEditingController();
   }
 //-------------------------------------------------------------------
 //==========================================================================================
+  @override
+  void initState() {
+    _getCurrentLocation();
+    
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
@@ -589,100 +597,13 @@ TextEditingController locationNameCtrl = TextEditingController();
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.02,
               ),
-              //Text Latitude
-              Padding(
-                padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * 0.1,
-                ),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'ละติจูด',
-                    style: TextStyle(
-                      color: Colors.grey[800],
-                      fontSize: MediaQuery.of(context).size.height * 0.02,
-                    ),
-                  ),
-                ),
-              ),
-              //TextField Latitude
-              Padding(
-                padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * 0.1,
-                  right: MediaQuery.of(context).size.width * 0.1,
-                  top: MediaQuery.of(context).size.height * 0.015,
-                ),
-                child: TextField(
-                  controller: latitudeCtrl,
-                  decoration: InputDecoration(
-                    hintText: 'ป้อนตำแหน่งละติจูด',
-                    hintStyle: TextStyle(
-                      color: Colors.grey[400],
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.orange,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.orange,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              //Text Longitude
-              Padding(
-                padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * 0.1,
-                ),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'ลองจิจูด',
-                    style: TextStyle(
-                      color: Colors.grey[800],
-                      fontSize: MediaQuery.of(context).size.height * 0.02,
-                    ),
-                  ),
-                ),
-              ),
-              //TextField Longitude
-              Padding(
-                padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * 0.1,
-                  right: MediaQuery.of(context).size.width * 0.1,
-                  top: MediaQuery.of(context).size.height * 0.015,
-                ),
-                child: TextField(
-                  controller: longitudeCtrl,
-                  decoration: InputDecoration(
-                    hintText: 'ป้อนตำแหน่งลองจิจูด',
-                    hintStyle: TextStyle(
-                      color: Colors.grey[400],
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.orange,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.orange,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.02,
-              ),
               //save button
               ElevatedButton(
                 onPressed: () {
                 //Validate
-                if (locationNameCtrl.text.trim().length == 0) {
+                if (_image64Selected == '' || _image64Selected == null) {
+                  showWaringDialog(context, 'กรุณาถ่ายภาพ/เลือกรูปภาพด้วย');
+                } else if (locationNameCtrl.text.trim().length == 0) {
                   showWaringDialog(context, 'ป้อนชื่อสถานที่ด้วย');
                 } else if (costCtrl.text.trim().length == 0) {
                   showWaringDialog(context, 'ป้อนค่าใช้จ่ายด้วย');
@@ -698,13 +619,17 @@ TextEditingController locationNameCtrl = TextEditingController();
                         cost: costCtrl.text.trim(),
                         startDate: startDateCtrl.text.trim(),
                         endDate: endDateCtrl.text.trim(),
+                        latitude: _latitude,
+                        longitude: _longitude,
+                        tripImage: _image64Selected,
+                        user_id: widget.user_id
                       );
                     //call API
                     CallAPI.callnewTripAPI(member).then((value) {
                         if (value.message == '1') {
                           showCompleteDialog(context, 'บันทึกการเดินทางสําเร็จOvO').then((value) => Navigator.pop(context));
                         } else {
-                          showCompleteDialog(context, 'บันทึกการเดินทางไม่สําเร็จ โปรดลองอีกครั้งTwT');
+                          showWaringDialog(context, 'บันทึกการเดินทางไม่สําเร็จ โปรดลองอีกครั้งTwT');
                         }
                       });
                 }
@@ -728,7 +653,19 @@ TextEditingController locationNameCtrl = TextEditingController();
               ),
 //cancel button              
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  setState(() {
+                    // .clear(); same as .text = ''
+                    _imageSelected = null;
+                    _image64Selected = '';
+                    locationNameCtrl.text = ''; 
+                    costCtrl.clear();
+                    startDateCtrl.clear();
+                    endDateCtrl.clear();
+                    _latitude = '';
+                    _longitude = '';
+                  });
+                },
                 child: Text(
                   'ยกเลิก',
                   style: TextStyle(

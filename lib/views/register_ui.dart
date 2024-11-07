@@ -1,6 +1,10 @@
-// ignore_for_file: prefer_const_constructors, sort_child_properties_last, prefer_is_empty, use_build_context_synchronously
+// ignore_for_file: prefer_const_constructors, sort_child_properties_last, prefer_is_empty, use_build_context_synchronously, unused_field
+
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:my_trip_project/models/user.dart';
 import 'package:my_trip_project/services/call_api.dart';
 import 'package:my_trip_project/views/login_ui.dart';
@@ -17,9 +21,45 @@ class _RegisterUIState extends State<RegisterUI> {
   TextEditingController usernameCtrl = TextEditingController(text: '');
   TextEditingController passwordCtrl = TextEditingController(text: '');
   TextEditingController emailCtrl = TextEditingController(text: '');
+//image variable
+  File? _imageSelected;
 
+//Variable store camera/gallery convert to Base64 for sent to api
+  String _image64Selected = '';
 //Boolean variable
   bool passStatus = true;
+//-----------------Camera/Gallery-----------------------------
+//open camera method
+  Future<void> _openCamera() async {
+    final XFile? _picker = await ImagePicker().pickImage(
+      source: ImageSource.camera,
+      imageQuality: 80,
+      preferredCameraDevice: CameraDevice.rear,
+    );
+
+    if (_picker != null) {
+      setState(() {
+        _imageSelected = File(_picker.path);
+        _image64Selected = base64Encode(_imageSelected!.readAsBytesSync());
+      });
+    }
+  }
+
+//open gallery method
+  Future<void> _openGallery() async {
+    final XFile? _picker = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (_picker != null) {
+      setState(() {
+        _imageSelected = File(_picker.path);
+        _image64Selected = base64Encode(_imageSelected!.readAsBytesSync());
+      });
+    }
+  }
+
+//-----------------Camera/Gallery-----------------------------
 
 //Method showWaringDialog
   showWaringDialog(context, msg) {
@@ -119,15 +159,81 @@ class _RegisterUIState extends State<RegisterUI> {
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.045,
           ),
-//Banner
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Image.network(
-              "https://cdn.pixabay.com/photo/2020/02/02/03/39/man-4811935_1280.png",
-              width: MediaQuery.of(context).size.width * 0.45,
-              height: MediaQuery.of(context).size.width * 0.45,
-              fit: BoxFit.cover,
-            ),
+          //Avatar
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width * 0.5,
+                height: MediaQuery.of(context).size.width * 0.5,
+                decoration: BoxDecoration(
+                  border: Border.all(width: 4, color: Colors.orange),
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image: _imageSelected == null
+                        ? AssetImage(
+                            'assets/images/banner map.jpg',
+                          )
+                        : FileImage(_imageSelected!),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+//Icon camera
+              IconButton(
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (context) => Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        //open camera
+                        ListTile(
+                          onTap: () {
+                            _openCamera().then(
+                              (value) => Navigator.pop(context),
+                            );
+                          },
+                          leading: Icon(
+                            Icons.camera_alt,
+                            color: Colors.red,
+                          ),
+                          title: Text(
+                            'Open Camera...',
+                          ),
+                        ),
+
+                        Divider(
+                          color: Colors.grey,
+                          height: 5.0,
+                        ),
+
+                        //open gallery
+                        ListTile(
+                          onTap: () {
+                            _openGallery().then(
+                              (value) => Navigator.pop(context),
+                            );
+                          },
+                          leading: Icon(
+                            Icons.browse_gallery,
+                            color: Colors.blue,
+                          ),
+                          title: Text(
+                            'Open Gallery...',
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                icon: Icon(
+                  Icons.camera_alt,
+                  color: Colors.orange,
+                ),
+              ),
+            ],
           ),
 
 //Text Username
@@ -300,7 +406,7 @@ class _RegisterUIState extends State<RegisterUI> {
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.02,
           ),
-//Login button
+//register button
           Padding(
             padding: EdgeInsets.only(
               left: MediaQuery.of(context).size.width * 0.1,
@@ -311,28 +417,31 @@ class _RegisterUIState extends State<RegisterUI> {
             child: ElevatedButton(
               onPressed: () {
                 //validate
-                if (usernameCtrl.text.trim().length == 0) {
-                  showCompleteDialog(context, 'กรุณาป้อนชื่อผู้ใช้งาน');
+                if (_imageSelected == null) {
+                  showCompleteDialog(context, 'กรุณาถ่ายรูป/อัปโหลดรูปโปรไฟล์ด้วย');
+                } else if (usernameCtrl.text.trim().length == 0) {
+                  showCompleteDialog(context, 'กรุณาป้อนรหัสผ่าน');
                 } else if (passwordCtrl.text.trim().length == 0) {
                   showCompleteDialog(context, 'กรุณาป้อนรหัสผ่าน');
                 } else if (emailCtrl.text.trim().length == 0) {
                   showCompleteDialog(context, 'กรุณาป้อนอีเมล');
                 } else {
-                //validate username and password from DB through API
-                //Create a variable to store data to be sent with the API
-                User user = User(
-                  username: usernameCtrl.text.trim(),
-                  password: passwordCtrl.text.trim(),
-                  email: emailCtrl.text.trim(),
-                );
-                //Call API
-                CallAPI.callnewUserAPI(user).then((value) {
-                  if (value.message == '1') {
-                    showCompleteDialog(context, 'สมัครสมาชิกสําเร็จOvO').then((value) => Navigator.pop(context));
-                  } else {
-                    showCompleteDialog(context, 'มีบางอย่างผิดพลาด');
-                  }
-                });
+                  //Packing data
+                  User user = User(
+                    username: usernameCtrl.text.trim(),
+                    password: passwordCtrl.text.trim(),
+                    email: emailCtrl.text.trim(),
+                    userImage: _image64Selected
+                  );
+                  //Call API
+                  CallAPI.callnewUserAPI(user).then((value) {
+                    if (value.message == '1') {
+                      showCompleteDialog(context, 'สมัครสมาชิกสําเร็จOvO')
+                          .then((value) => Navigator.pop(context));
+                    } else {
+                      showCompleteDialog(context, 'มีบางอย่างผิดพลาด');
+                    }
+                  });
                 }
               },
               child: Text(

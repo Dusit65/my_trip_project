@@ -6,6 +6,7 @@ class User {
   String? username;
   String? password;
   String? email;
+  String? userImage;
 
   User({
     this.message,
@@ -13,6 +14,7 @@ class User {
     this.username,
     this.password,
     this.email,
+    this.userImage,
   });
 
 //Convert JSON file to App data
@@ -22,6 +24,7 @@ class User {
     username = json['username'];
     password = json['password'];
     email = json['email'];
+    userImage = json['userImage'];
   }
 //Convert App data to JSON file
   Map<String, dynamic> toJson() {
@@ -31,6 +34,8 @@ class User {
     data['username'] = this.username;
     data['password'] = this.password;
     data['email'] = this.email;
+    data['userImage'] = this.userImage;
+
     return data;
   }
 }

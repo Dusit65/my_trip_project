@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_trip_project/models/user.dart';
 import 'package:my_trip_project/services/call_api.dart';
+import 'package:my_trip_project/utils/env.dart';
 
 class UpdateProfileUi extends StatefulWidget {
   User? user;
@@ -126,12 +127,13 @@ class _UpdateProfileUiState extends State<UpdateProfileUi> {
             height: MediaQuery.of(context).size.height * 0.045,
           ),
 //Banner
-          ClipRRect(
+          //Profile
+            ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Image.network(
-              "https://cdn.pixabay.com/photo/2020/02/02/03/39/man-4811935_1280.png",
-              width: MediaQuery.of(context).size.width * 0.45,
-              height: MediaQuery.of(context).size.width * 0.45,
+              '${Env.hostName}/mt6552410011/pickupload/user/${widget.user!.userImage}',
+              width: MediaQuery.of(context).size.width * 0.35,
+              height: MediaQuery.of(context).size.width * 0.35,
               fit: BoxFit.cover,
             ),
           ),

@@ -237,12 +237,12 @@ class _LoginUIState extends State<LoginUI> {
                           password: passwordCtrl.text.trim(),
                         );
                         //call API
-                        CallAPI.callCheckLoginAPI(user).then((value) {
+                        CallAPI.callcheckUserPasswordAPI(user).then((value) {
                           if (value.message == '1') {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => HomeUI(users: value,),
+                                builder: (context) => HomeUI(user: value,),
                               ),
                             );
                           } else {

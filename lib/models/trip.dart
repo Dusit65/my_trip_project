@@ -8,6 +8,8 @@ class Trip {
   String? latitude;
   String? longitude;
   String? cost;
+  String? tripImage;
+
 
   Trip(
       {this.message,
@@ -18,7 +20,8 @@ class Trip {
       this.locationName,
       this.latitude,
       this.longitude,
-      this.cost});
+      this.cost,
+      this.tripImage});
 //Convert JSON file to App data
   Trip.fromJson(Map<String, dynamic> json) {
     message = json['message'];
@@ -30,6 +33,7 @@ class Trip {
     latitude = json['latitude'];
     longitude = json['longitude'];
     cost = json['cost'];
+    tripImage = json['tripImage'];
   }
 //Convert App data to JSON file
   Map<String, dynamic> toJson() {
@@ -43,6 +47,7 @@ class Trip {
     data['latitude'] = this.latitude;
     data['longitude'] = this.longitude;
     data['cost'] = this.cost;
+    data['tripImage'] = this.tripImage;
     return data;
   }
 }

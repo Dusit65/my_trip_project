@@ -10,7 +10,7 @@ import 'package:my_trip_project/utils/env.dart';
 
 class CallAPI {
   //Method call CheckLoginAPI.php -----------------------------------------------
-  static Future<User> callCheckLoginAPI(User user) async {
+  static Future<User> callcheckUserPasswordAPI(User user) async {
     //call to use API and then store the values received from the API in variables.
     final responseData = await http.post(
       Uri.parse(Env.hostName + '/mt6552410011/apis/checkUserPasswordAPI.php'), // api url
@@ -82,6 +82,36 @@ class CallAPI {
     //call to use API and then store the values received from the API in variables.
     final responseData = await http.post(
       Uri.parse(Env.hostName + '/mt6552410011/apis/newTripAPI.php'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(trip.toJson()),
+    );
+    if (responseData.statusCode == 200) {
+      return Trip.fromJson(jsonDecode(responseData.body));
+    } else {
+      throw Exception('Failed to call API');
+    }
+  }
+
+  //Method call updateTripAPI.php (add new)-----------------------------------------------
+  static Future<Trip> callupdateTripAPI(Trip trip) async {
+    //call to use API and then store the values received from the API in variables.
+    final responseData = await http.post(
+      Uri.parse(Env.hostName + '/mt6552410011/apis/updateTripAPI.php'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(trip.toJson()),
+    );
+    if (responseData.statusCode == 200) {
+      return Trip.fromJson(jsonDecode(responseData.body));
+    } else {
+      throw Exception('Failed to call API');
+    }
+  }
+
+ //Method call deleteTripAPI.php (add new)-----------------------------------------------
+  static Future<Trip> calldeleteTripAPI(Trip trip) async {
+    //call to use API and then store the values received from the API in variables.
+    final responseData = await http.post(
+      Uri.parse(Env.hostName + '/mt6552410011/apis/deleteTripAPI.php'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(trip.toJson()),
     );
