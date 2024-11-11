@@ -9,6 +9,8 @@ class Trip {
   String? longitude;
   String? cost;
   String? tripImage;
+  String? tripImage2;
+  String? tripImage3;
 
 
   Trip(
@@ -21,7 +23,10 @@ class Trip {
       this.latitude,
       this.longitude,
       this.cost,
-      this.tripImage});
+      this.tripImage,
+      this.tripImage2,
+      this.tripImage3
+      });
 //Convert JSON file to App data
   Trip.fromJson(Map<String, dynamic> json) {
     message = json['message'];
@@ -34,6 +39,8 @@ class Trip {
     longitude = json['longitude'];
     cost = json['cost'];
     tripImage = json['tripImage'];
+    tripImage2 = json['tripImage2'];
+    tripImage3 = json['tripImage3'];
   }
 //Convert App data to JSON file
   Map<String, dynamic> toJson() {
@@ -48,6 +55,8 @@ class Trip {
     data['longitude'] = this.longitude;
     data['cost'] = this.cost;
     data['tripImage'] = this.tripImage;
+    data['tripImage2'] = this.tripImage2;
+    data['tripImage3'] = this.tripImage3;
     return data;
   }
 }

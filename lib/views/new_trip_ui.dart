@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:carousel_slider_plus/carousel_slider_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
@@ -11,7 +12,7 @@ import 'package:my_trip_project/services/call_api.dart';
 
 class NewTripUi extends StatefulWidget {
   String user_id;
-   NewTripUi({super.key, required this.user_id});
+  NewTripUi({super.key, required this.user_id});
 
   @override
   State<NewTripUi> createState() => _NewTripUiState();
@@ -21,16 +22,20 @@ class _NewTripUiState extends State<NewTripUi> {
 //=========================================Variable v =================================================
 
 //Textfield Controller
-TextEditingController locationNameCtrl = TextEditingController();
+  TextEditingController locationNameCtrl = TextEditingController();
   TextEditingController costCtrl = TextEditingController();
   TextEditingController startDateCtrl = TextEditingController();
   TextEditingController endDateCtrl = TextEditingController();
 
 //image variable
   File? _imageSelected;
-  
+  File? _imageSelected2;
+  File? _imageSelected3;
+
 //Variable store camera/gallery convert to Base64 for sent to api
   String _image64Selected = '';
+  String _image64Selected2 = '';
+  String _image64Selected3 = '';
 
 //variable meal
   int? meal;
@@ -45,7 +50,6 @@ TextEditingController locationNameCtrl = TextEditingController();
 
 //==================================Method / Function v===============================================
 //++++++++++++++++Latitude Longitude+++++++++++++++++++++++++
-
 
 //ตัวแปรเก็บตําแหน่งที่ Latitude, Longitude
 
@@ -76,7 +80,7 @@ TextEditingController locationNameCtrl = TextEditingController();
 //++++++++++++++++Latitude Longitude+++++++++++++++++++++++++
 
 //-----------------Camera/Gallery-----------------------------
-//open camera method
+//open camera 1-3method
   Future<void> _openCamera() async {
     final XFile? _picker = await ImagePicker().pickImage(
       source: ImageSource.camera,
@@ -88,12 +92,37 @@ TextEditingController locationNameCtrl = TextEditingController();
       setState(() {
         _imageSelected = File(_picker.path);
         _image64Selected = base64Encode(_imageSelected!.readAsBytesSync());
-       
+      });
+    }
+  }
+  Future<void> _openCamera2() async {
+    final XFile? _picker = await ImagePicker().pickImage(
+      source: ImageSource.camera,
+      imageQuality: 80,
+      preferredCameraDevice: CameraDevice.rear,
+    );
+    if (_picker != null) {
+      setState(() {
+        _imageSelected2 = File(_picker.path);
+        _image64Selected2 = base64Encode(_imageSelected2!.readAsBytesSync());
+      });
+    }
+  }
+  Future<void> _openCamera3() async {
+    final XFile? _picker = await ImagePicker().pickImage(
+      source: ImageSource.camera,
+      imageQuality: 80,
+      preferredCameraDevice: CameraDevice.rear,
+    );
+    if (_picker != null) {
+      setState(() {
+        _imageSelected3 = File(_picker.path);
+        _image64Selected3 = base64Encode(_imageSelected3!.readAsBytesSync());
       });
     }
   }
 
-//open gallery method
+//open gallery 1-3 method
   Future<void> _openGallery() async {
     final XFile? _picker = await ImagePicker().pickImage(
       source: ImageSource.gallery,
@@ -103,6 +132,30 @@ TextEditingController locationNameCtrl = TextEditingController();
       setState(() {
         _imageSelected = File(_picker.path);
         _image64Selected = base64Encode(_imageSelected!.readAsBytesSync());
+      });
+    }
+  }
+  Future<void> _openGallery2() async {
+    final XFile? _picker = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (_picker != null) {
+      setState(() {
+        _imageSelected2 = File(_picker.path);
+        _image64Selected2 = base64Encode(_imageSelected2!.readAsBytesSync());
+      });
+    }
+  }
+  Future<void> _openGallery3() async {
+    final XFile? _picker = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (_picker != null) {
+      setState(() {
+        _imageSelected3 = File(_picker.path);
+        _image64Selected3 = base64Encode(_imageSelected3!.readAsBytesSync());
       });
     }
   }
@@ -123,10 +176,9 @@ TextEditingController locationNameCtrl = TextEditingController();
       setState(() {
         // startDateCtrl.text = convertToThaiDate(_picker);
         // _startDateSelected = _picker.toString().substring(0, 10);
-         startDateCtrl.text = _picker.toString().substring(0, 10);
+        startDateCtrl.text = _picker.toString().substring(0, 10);
       });
     }
-
   }
 
   //Method open calendar end trip
@@ -139,13 +191,12 @@ TextEditingController locationNameCtrl = TextEditingController();
     );
 
     if (_picker != null) {
-      setState(() {  
+      setState(() {
         // endDateCtrl.text = convertToThaiDate(_picker);
         // _endDateSelected = _picker.toString().substring(0, 10);
-         endDateCtrl.text = _picker.toString().substring(0, 10);
+        endDateCtrl.text = _picker.toString().substring(0, 10);
       });
     }
-
   }
 /*
 //เมธอดแปลงวันที่แบบสากล (ปี ค.ศ.-เดือน ตัวเลข-วัน ตัวเลข) ให้เป็นวันที่แบบไทย (วัน เดือน ปี)
@@ -264,17 +315,19 @@ TextEditingController locationNameCtrl = TextEditingController();
       ),
     );
   }
+
 //-------------------------------------------------------------------
 //==========================================================================================
   @override
   void initState() {
     _getCurrentLocation();
-    
+
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
       //AppBar
       appBar: AppBar(
         backgroundColor: Colors.orange,
@@ -306,388 +359,551 @@ TextEditingController locationNameCtrl = TextEditingController();
             child: Column(
               children: [
                 SizedBox(
-                height: MediaQuery.of(context).size.height * 0.075,
-              ),
-//Avatar
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.5,
-                    height: MediaQuery.of(context).size.width * 0.5,
-                    decoration: BoxDecoration(
-                      border: Border.all(width: 4, color: Colors.orange),
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: _imageSelected == null
-                            ? AssetImage(
-                                'assets/images/banner map.jpg',
-                              )
-                            : FileImage(_imageSelected!),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+                  height: MediaQuery.of(context).size.height * 0.045,
+                ),
+//Picture
+                
+                CarouselSlider(
+                  options: CarouselOptions(
+                    enableInfiniteScroll: false,
                   ),
-//Icon camera
-                  IconButton(
-                    onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (context) => Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            //open camera
-                            ListTile(
-                              onTap: () {
-                                _openCamera().then(
-                                  (value) => Navigator.pop(context),
-                                );
-                              },
-                              leading: Icon(
-                                Icons.camera_alt,
-                                color: Colors.red,
+                  items: [
+                    //Pic1
+                    GestureDetector(
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (context) => Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              //open camera
+                              ListTile(
+                                onTap: () {
+                                  _openCamera().then(
+                                    (value) => Navigator.pop(context),
+                                  );
+                                },
+                                leading: Icon(
+                                  Icons.camera_alt,
+                                  color: Colors.red,
+                                ),
+                                title: Text(
+                                  'Open Camera...',
+                                ),
                               ),
-                              title: Text(
-                                'Open Camera...',
-                              ),
-                            ),
 
-                            Divider(
-                              color: Colors.grey,
-                              height: 5.0,
-                            ),
+                              Divider(
+                                color: Colors.grey,
+                                height: 5.0,
+                              ),
 
-                            //open gallery
-                            ListTile(
-                              onTap: () {
-                                _openGallery().then(
-                                  (value) => Navigator.pop(context),
-                                );
-                              },
-                              leading: Icon(
-                                Icons.browse_gallery,
-                                color: Colors.blue,
+                              //open gallery
+                              ListTile(
+                                onTap: () {
+                                  _openGallery().then(
+                                    (value) => Navigator.pop(context),
+                                  );
+                                },
+                                leading: Icon(
+                                  Icons.browse_gallery,
+                                  color: Colors.blue,
+                                ),
+                                title: Text(
+                                  'Open Gallery...',
+                                ),
                               ),
-                              title: Text(
-                                'Open Gallery...',
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    icon: Icon(
-                      Icons.camera_alt,
-                      color: Colors.orange,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.09,
-              ),
-              //Text locationName
-              Padding(
-                padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * 0.1,
-                ),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'สถานที่เดินทาง',
-                    style: TextStyle(
-                      color: Colors.grey[800],
-                      fontSize: MediaQuery.of(context).size.height * 0.02,
-                    ),
-                  ),
-                ),
-              ),
-              //TextField locationName
-              Padding(
-                padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * 0.1,
-                  right: MediaQuery.of(context).size.width * 0.1,
-                  top: MediaQuery.of(context).size.height * 0.015,
-                ),
-                child: TextField(
-                  controller: locationNameCtrl,
-                  decoration: InputDecoration(
-                    hintText: 'ป้อนชื่อสถานที่',
-                    hintStyle: TextStyle(
-                      color: Colors.grey[400],
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.orange,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.orange,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              //Text cost
-              Padding(
-                padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * 0.1,
-                  top: MediaQuery.of(context).size.height * 0.02,
-                ),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'ค่าใช้จ่าย',
-                    style: TextStyle(
-                      color: Colors.grey[800],
-                      fontSize: MediaQuery.of(context).size.height * 0.02,
-                    ),
-                  ),
-                ),
-              ),
-              //TextField cost
-              Padding(
-                padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * 0.1,
-                  right: MediaQuery.of(context).size.width * 0.1,
-                  top: MediaQuery.of(context).size.height * 0.015,
-                ),
-                child: TextField(
-                  controller: costCtrl,
-                  decoration: InputDecoration(
-                    hintText: 'ป้อนค่าใช้จ่าย',
-                    hintStyle: TextStyle(
-                      color: Colors.grey[400],
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.orange,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.orange,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              //Text start date
-              Padding(
-                padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * 0.1,
-                  top: MediaQuery.of(context).size.height * 0.02,
-                ),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'วันที่เริ่มเดินทาง',
-                    style: TextStyle(
-                      color: Colors.grey[800],
-                      fontSize: MediaQuery.of(context).size.height * 0.02,
-                    ),
-                  ),
-                ),
-              ),
-              //TextField start date
-              Padding(
-                padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * 0.1,
-                  right: MediaQuery.of(context).size.width * 0.1,
-                  top: MediaQuery.of(context).size.height * 0.02,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: startDateCtrl,
-                        enabled: false,
-                        decoration: InputDecoration(
-                          hintText: 'เลือกวันที่เริ่มเดินทาง',
-                          hintStyle: TextStyle(
-                            color: Colors.grey[400],
+                            ],
                           ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.orange,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.orange,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        _openCalendarStart();
+                        );
                       },
-                      icon: Icon(
-                        Icons.calendar_month,
-                        color: Colors.orange,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Container(
+                            width: MediaQuery.of(context).size.width * 0.5,
+                            height: MediaQuery.of(context).size.width * 0.5,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              border:
+                                  Border.all(width: 4, color: Colors.orange),
+                              shape: BoxShape.rectangle,
+                              image: DecorationImage(
+                                image: _imageSelected == null
+                                    ? AssetImage(
+                                        'assets/images/Photo.png',
+                                      )
+                                    : FileImage(_imageSelected!),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+                    GestureDetector(
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (context) => Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              //open camera
+                              ListTile(
+                                onTap: () {
+                                  _openCamera2().then(
+                                    (value) => Navigator.pop(context),
+                                  );
+                                },
+                                leading: Icon(
+                                  Icons.camera_alt,
+                                  color: Colors.red,
+                                ),
+                                title: Text(
+                                  'Open Camera...',
+                                ),
+                              ),
+
+                              Divider(
+                                color: Colors.grey,
+                                height: 5.0,
+                              ),
+
+                              //open gallery
+                              ListTile(
+                                onTap: () {
+                                  _openGallery2().then(
+                                    (value) => Navigator.pop(context),
+                                  );
+                                },
+                                leading: Icon(
+                                  Icons.browse_gallery,
+                                  color: Colors.blue,
+                                ),
+                                title: Text(
+                                  'Open Gallery...',
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Container(
+                            width: MediaQuery.of(context).size.width * 0.5,
+                            height: MediaQuery.of(context).size.width * 0.5,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              border:
+                                  Border.all(width: 4, color: Colors.orange),
+                              shape: BoxShape.rectangle,
+                              image: DecorationImage(
+                                image: _imageSelected2 == null
+                                    ? AssetImage(
+                                        'assets/images/Photo.png',
+                                      )
+                                    : FileImage(_imageSelected2!),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    //Pic3
+                    GestureDetector(
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (context) => Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              //open camera
+                              ListTile(
+                                onTap: () {
+                                  _openCamera3().then(
+                                    (value) => Navigator.pop(context),
+                                  );
+                                },
+                                leading: Icon(
+                                  Icons.camera_alt,
+                                  color: Colors.red,
+                                ),
+                                title: Text(
+                                  'Open Camera...',
+                                ),
+                              ),
+
+                              Divider(
+                                color: Colors.grey,
+                                height: 5.0,
+                              ),
+
+                              //open gallery
+                              ListTile(
+                                onTap: () {
+                                  _openGallery3().then(
+                                    (value) => Navigator.pop(context),
+                                  );
+                                },
+                                leading: Icon(
+                                  Icons.browse_gallery,
+                                  color: Colors.blue,
+                                ),
+                                title: Text(
+                                  'Open Gallery...',
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Container(
+                            width: MediaQuery.of(context).size.width * 0.5,
+                            height: MediaQuery.of(context).size.width * 0.5,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              border:
+                                  Border.all(width: 4, color: Colors.orange),
+                              shape: BoxShape.rectangle,
+                              image: DecorationImage(
+                                image: _imageSelected3 == null
+                                    ? AssetImage(
+                                        'assets/images/Photo.png',
+                                      )
+                                    : FileImage(_imageSelected3!),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
                   ],
                 ),
-              ),
-              //Text end date
-              Padding(
-                padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * 0.1,
-                  top: MediaQuery.of(context).size.height * 0.02,
+
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.09,
                 ),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'วันที่สิ้นสุดเดินทาง',
-                    style: TextStyle(
-                      color: Colors.grey[800],
-                      fontSize: MediaQuery.of(context).size.height * 0.02,
+                //Text locationName
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: MediaQuery.of(context).size.width * 0.1,
+                  ),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'สถานที่เดินทาง',
+                      style: TextStyle(
+                        color: Colors.grey[800],
+                        fontSize: MediaQuery.of(context).size.height * 0.02,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              //TextField end date
-              Padding(
-                padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * 0.1,
-                  right: MediaQuery.of(context).size.width * 0.1,
-                  top: MediaQuery.of(context).size.height * 0.02,
+                //TextField locationName
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: MediaQuery.of(context).size.width * 0.1,
+                    right: MediaQuery.of(context).size.width * 0.1,
+                    top: MediaQuery.of(context).size.height * 0.015,
+                  ),
+                  child: TextField(
+                    controller: locationNameCtrl,
+                    decoration: InputDecoration(
+                      hintText: 'ป้อนชื่อสถานที่',
+                      hintStyle: TextStyle(
+                        color: Colors.grey[400],
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.orange,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: endDateCtrl,
-                        enabled: false,
-                        decoration: InputDecoration(
-                          hintText: 'เลือกวันที่สิ้นสุดการเดินทาง',
-                          hintStyle: TextStyle(
-                            color: Colors.grey[400],
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.orange,
+                //Text cost
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: MediaQuery.of(context).size.width * 0.1,
+                    top: MediaQuery.of(context).size.height * 0.02,
+                  ),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'ค่าใช้จ่าย',
+                      style: TextStyle(
+                        color: Colors.grey[800],
+                        fontSize: MediaQuery.of(context).size.height * 0.02,
+                      ),
+                    ),
+                  ),
+                ),
+                //TextField cost
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: MediaQuery.of(context).size.width * 0.1,
+                    right: MediaQuery.of(context).size.width * 0.1,
+                    top: MediaQuery.of(context).size.height * 0.015,
+                  ),
+                  child: TextField(
+                    controller: costCtrl,
+                    decoration: InputDecoration(
+                      hintText: 'ป้อนค่าใช้จ่าย',
+                      hintStyle: TextStyle(
+                        color: Colors.grey[400],
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.orange,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                //Text start date
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: MediaQuery.of(context).size.width * 0.1,
+                    top: MediaQuery.of(context).size.height * 0.02,
+                  ),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'วันที่เริ่มเดินทาง',
+                      style: TextStyle(
+                        color: Colors.grey[800],
+                        fontSize: MediaQuery.of(context).size.height * 0.02,
+                      ),
+                    ),
+                  ),
+                ),
+                //TextField start date
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: MediaQuery.of(context).size.width * 0.1,
+                    right: MediaQuery.of(context).size.width * 0.1,
+                    top: MediaQuery.of(context).size.height * 0.02,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: startDateCtrl,
+                          enabled: false,
+                          decoration: InputDecoration(
+                            hintText: 'เลือกวันที่เริ่มเดินทาง',
+                            hintStyle: TextStyle(
+                              color: Colors.grey[400],
                             ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.orange,
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.orange,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.orange,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        _openCalendarEnd();
-                      },
-                      icon: Icon(
-                        Icons.calendar_month,
-                        color: Colors.orange,
+                      IconButton(
+                        onPressed: () {
+                          _openCalendarStart();
+                        },
+                        icon: Icon(
+                          Icons.calendar_month,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                //Text end date
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: MediaQuery.of(context).size.width * 0.1,
+                    top: MediaQuery.of(context).size.height * 0.02,
+                  ),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'วันที่สิ้นสุดเดินทาง',
+                      style: TextStyle(
+                        color: Colors.grey[800],
+                        fontSize: MediaQuery.of(context).size.height * 0.02,
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.02,
-              ),
-              //save button
-              ElevatedButton(
-                onPressed: () {
-                //Validate
-                if (_image64Selected == '' || _image64Selected == null) {
-                  showWaringDialog(context, 'กรุณาถ่ายภาพ/เลือกรูปภาพด้วย');
-                } else if (locationNameCtrl.text.trim().length == 0) {
-                  showWaringDialog(context, 'ป้อนชื่อสถานที่ด้วย');
-                } else if (costCtrl.text.trim().length == 0) {
-                  showWaringDialog(context, 'ป้อนค่าใช้จ่ายด้วย');
-                } else if (startDateCtrl.text.trim().length == 0) {
-                  showWaringDialog(context, 'เลือกวันที่เริ่มเดินทางด้วย');
-                } else if (endDateCtrl.text.trim().length == 0) {
-                  showWaringDialog(context, 'เลือกวันที่สิ้นสุดเดินทางด้วย');
-                } else {
-                    //validate username and password from DB through API
-                    //Create a variable to store data to be sent with the API
-                  Trip member = Trip(
-                        locationName: locationNameCtrl.text.trim(),
-                        cost: costCtrl.text.trim(),
-                        startDate: startDateCtrl.text.trim(),
-                        endDate: endDateCtrl.text.trim(),
-                        latitude: _latitude,
-                        longitude: _longitude,
-                        tripImage: _image64Selected,
-                        user_id: widget.user_id
-                      );
-                    //call API
-                    CallAPI.callnewTripAPI(member).then((value) {
+                //TextField end date
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: MediaQuery.of(context).size.width * 0.1,
+                    right: MediaQuery.of(context).size.width * 0.1,
+                    top: MediaQuery.of(context).size.height * 0.02,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: endDateCtrl,
+                          enabled: false,
+                          decoration: InputDecoration(
+                            hintText: 'เลือกวันที่สิ้นสุดการเดินทาง',
+                            hintStyle: TextStyle(
+                              color: Colors.grey[400],
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.orange,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.orange,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          _openCalendarEnd();
+                        },
+                        icon: Icon(
+                          Icons.calendar_month,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.02,
+                ),
+                //save button
+                ElevatedButton(
+                  onPressed: () {
+                    //Validate
+                    if ((_image64Selected == '' && _image64Selected2 == '' && _image64Selected3 == '') || 
+                    (_image64Selected == null && _image64Selected2 == null && _image64Selected3 == null)) {
+                      showWaringDialog(context, 'กรุณาถ่ายภาพ/เลือกรูปภาพทั้ง 3 รูปด้วย');
+                    } else if (locationNameCtrl.text.trim().length == 0) {
+                      showWaringDialog(context, 'ป้อนชื่อสถานที่ด้วย');
+                    } else if (costCtrl.text.trim().length == 0) {
+                      showWaringDialog(context, 'ป้อนค่าใช้จ่ายด้วย');
+                    } else if (startDateCtrl.text.trim().length == 0) {
+                      showWaringDialog(context, 'เลือกวันที่เริ่มเดินทางด้วย');
+                    } else if (endDateCtrl.text.trim().length == 0) {
+                      showWaringDialog(
+                          context, 'เลือกวันที่สิ้นสุดเดินทางด้วย');
+                    } else {
+                      //validate username and password from DB through API
+                      //Create a variable to store data to be sent with the API
+                      Trip member = Trip(
+                          locationName: locationNameCtrl.text.trim(),
+                          cost: costCtrl.text.trim(),
+                          startDate: startDateCtrl.text.trim(),
+                          endDate: endDateCtrl.text.trim(),
+                          latitude: _latitude,
+                          longitude: _longitude,
+                          tripImage: _image64Selected,
+                          tripImage2: _image64Selected2,
+                          tripImage3: _image64Selected3,
+                          user_id: widget.user_id);
+                      //call API
+                      CallAPI.callnewTripAPI(member).then((value) {
                         if (value.message == '1') {
-                          showCompleteDialog(context, 'บันทึกการเดินทางสําเร็จOvO').then((value) => Navigator.pop(context));
+                          showCompleteDialog(
+                                  context, 'บันทึกการเดินทางสําเร็จOvO')
+                              .then((value) => Navigator.pop(context));
                         } else {
-                          showWaringDialog(context, 'บันทึกการเดินทางไม่สําเร็จ โปรดลองอีกครั้งTwT');
+                          showWaringDialog(context,
+                              'บันทึกการเดินทางไม่สําเร็จ โปรดลองอีกครั้งTwT');
                         }
                       });
-                }
-                },
-                child: Text(
-                  'บันทึกการเดินทาง',
-                  style: TextStyle(
-                    color: Colors.white,
+                    }
+                  },
+                  child: Text(
+                    'บันทึกการเดินทาง',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    fixedSize: Size(
+                      MediaQuery.of(context).size.width * 0.8,
+                      MediaQuery.of(context).size.height * 0.07,
+                    ),
                   ),
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  fixedSize: Size(
-                    MediaQuery.of(context).size.width * 0.8,
-                    MediaQuery.of(context).size.height * 0.07,
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.02,
+                ),
+//cancel button
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      // .clear(); same as .text = ''
+                      _imageSelected = null;
+                      _imageSelected2 = null;
+                      _imageSelected3 = null;
+                      _image64Selected = '';
+                      _image64Selected2 = '';
+                      _image64Selected3 = '';
+                      locationNameCtrl.text = '';
+                      costCtrl.clear();
+                      startDateCtrl.clear();
+                      endDateCtrl.clear();
+                      _latitude = '';
+                      _longitude = '';
+                    });
+                  },
+                  child: Text(
+                    'ยกเลิก',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red[400],
+                    fixedSize: Size(
+                      MediaQuery.of(context).size.width * 0.8,
+                      MediaQuery.of(context).size.height * 0.07,
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.02,
-              ),
-//cancel button              
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    // .clear(); same as .text = ''
-                    _imageSelected = null;
-                    _image64Selected = '';
-                    locationNameCtrl.text = ''; 
-                    costCtrl.clear();
-                    startDateCtrl.clear();
-                    endDateCtrl.clear();
-                    _latitude = '';
-                    _longitude = '';
-                  });
-                },
-                child: Text(
-                  'ยกเลิก',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.1,
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red[400],
-                  fixedSize: Size(
-                    MediaQuery.of(context).size.width * 0.8,
-                    MediaQuery.of(context).size.height * 0.07,
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.1,
-              ),
               ],
             ),
           ),
         ),
-        ),
+      ),
     );
   }
 }

@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:carousel_slider_plus/carousel_slider_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
@@ -28,9 +29,13 @@ class _UpDelTripUiState extends State<UpDelTripUi> {
   TextEditingController endDateCtrl = TextEditingController();
 //image variable
   File? _imageSelected;
+  File? _imageSelected2;
+  File? _imageSelected3;
 
 //Variable store camera/gallery convert to Base64 for sent to api
   String _image64Selected = '';
+  String _image64Selected2 = '';
+  String _image64Selected3 = '';
 
 //variable meal
   int? meal;
@@ -89,6 +94,36 @@ class _UpDelTripUiState extends State<UpDelTripUi> {
     }
   }
 
+  Future<void> _openCamera2() async {
+    final XFile? _picker = await ImagePicker().pickImage(
+      source: ImageSource.camera,
+      imageQuality: 80,
+      preferredCameraDevice: CameraDevice.rear,
+    );
+
+    if (_picker != null) {
+      setState(() {
+        _imageSelected2 = File(_picker.path);
+        _image64Selected2 = base64Encode(_imageSelected2!.readAsBytesSync());
+      });
+    }
+  }
+
+  Future<void> _openCamera3() async {
+    final XFile? _picker = await ImagePicker().pickImage(
+      source: ImageSource.camera,
+      imageQuality: 80,
+      preferredCameraDevice: CameraDevice.rear,
+    );
+
+    if (_picker != null) {
+      setState(() {
+        _imageSelected3 = File(_picker.path);
+        _image64Selected3 = base64Encode(_imageSelected3!.readAsBytesSync());
+      });
+    }
+  }
+
 //open gallery method
   Future<void> _openGallery() async {
     final XFile? _picker = await ImagePicker().pickImage(
@@ -99,6 +134,32 @@ class _UpDelTripUiState extends State<UpDelTripUi> {
       setState(() {
         _imageSelected = File(_picker.path);
         _image64Selected = base64Encode(_imageSelected!.readAsBytesSync());
+      });
+    }
+  }
+
+  Future<void> _openGallery2() async {
+    final XFile? _picker = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (_picker != null) {
+      setState(() {
+        _imageSelected2 = File(_picker.path);
+        _image64Selected2 = base64Encode(_imageSelected2!.readAsBytesSync());
+      });
+    }
+  }
+
+  Future<void> _openGallery3() async {
+    final XFile? _picker = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (_picker != null) {
+      setState(() {
+        _imageSelected3 = File(_picker.path);
+        _image64Selected3 = base64Encode(_imageSelected3!.readAsBytesSync());
       });
     }
   }
@@ -307,29 +368,36 @@ class _UpDelTripUiState extends State<UpDelTripUi> {
               height: MediaQuery.of(context).size.height * 0.075,
             ),
             //Avatar
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.5,
-                  height: MediaQuery.of(context).size.width * 0.5,
-                  decoration: BoxDecoration(
-                    border: Border.all(width: 4, color: Colors.orange),
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                      image: _imageSelected == null
-                          ? NetworkImage(
-                              '${Env.hostName}/mt6552410011/pickupload/trip/${widget.trip!.tripImage!}',
-                            )
-                          : FileImage(_imageSelected!),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-//Icon camera
-                IconButton(
-                  onPressed: () {
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   crossAxisAlignment: CrossAxisAlignment.end,
+            //   children: [
+            //     Container(
+            //       width: MediaQuery.of(context).size.width * 0.5,
+            //       height: MediaQuery.of(context).size.width * 0.5,
+            //       decoration: BoxDecoration(
+            //         border: Border.all(width: 4, color: Colors.orange),
+            //         shape: BoxShape.circle,
+            //         image: DecorationImage(
+            //           image: _imageSelected == null
+            //               ? NetworkImage(
+            //                   '${Env.hostName}/mt6552410011/pickupload/trip/${widget.trip!.tripImage!}',
+            //                 )
+            //               : FileImage(_imageSelected!),
+            //           fit: BoxFit.cover,
+            //         ),
+            //       ),
+            //     ),
+            //   ],
+            // ),
+            CarouselSlider(
+              options: CarouselOptions(
+                enableInfiniteScroll: false,
+              ),
+              items: [
+                //Pic1
+                GestureDetector(
+                  onTap: () {
                     showModalBottomSheet(
                       context: context,
                       builder: (context) => Column(
@@ -375,9 +443,172 @@ class _UpDelTripUiState extends State<UpDelTripUi> {
                       ),
                     );
                   },
-                  icon: Icon(
-                    Icons.camera_alt,
-                    color: Colors.orange,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.5,
+                        height: MediaQuery.of(context).size.width * 0.5,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(width: 4, color: Colors.orange),
+                          shape: BoxShape.rectangle,
+                          image: DecorationImage(
+                            image: _imageSelected == null
+                                ? NetworkImage(
+                                    '${Env.hostName}/mt6552410011/pickupload/trip/${widget.trip!.tripImage!}',
+                                  )
+                                : FileImage(_imageSelected!),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                //Pic2
+                GestureDetector(
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) => Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          //open camera
+                          ListTile(
+                            onTap: () {
+                              _openCamera2().then(
+                                (value) => Navigator.pop(context),
+                              );
+                            },
+                            leading: Icon(
+                              Icons.camera_alt,
+                              color: Colors.red,
+                            ),
+                            title: Text(
+                              'Open Camera...',
+                            ),
+                          ),
+
+                          Divider(
+                            color: Colors.grey,
+                            height: 5.0,
+                          ),
+
+                          //open gallery
+                          ListTile(
+                            onTap: () {
+                              _openGallery2().then(
+                                (value) => Navigator.pop(context),
+                              );
+                            },
+                            leading: Icon(
+                              Icons.browse_gallery,
+                              color: Colors.blue,
+                            ),
+                            title: Text(
+                              'Open Gallery...',
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.5,
+                        height: MediaQuery.of(context).size.width * 0.5,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(width: 4, color: Colors.orange),
+                          shape: BoxShape.rectangle,
+                          image: DecorationImage(
+                            image: _imageSelected2== null
+                                ? NetworkImage(
+                                    '${Env.hostName}/mt6552410011/pickupload/trip/${widget.trip!.tripImage2!}',
+                                  )
+                                : FileImage(_imageSelected2!),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                //Pic3
+                GestureDetector(
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) => Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          //open camera
+                          ListTile(
+                            onTap: () {
+                              _openCamera3().then(
+                                (value) => Navigator.pop(context),
+                              );
+                            },
+                            leading: Icon(
+                              Icons.camera_alt,
+                              color: Colors.red,
+                            ),
+                            title: Text(
+                              'Open Camera...',
+                            ),
+                          ),
+
+                          Divider(
+                            color: Colors.grey,
+                            height: 5.0,
+                          ),
+
+                          //open gallery
+                          ListTile(
+                            onTap: () {
+                              _openGallery3().then(
+                                (value) => Navigator.pop(context),
+                              );
+                            },
+                            leading: Icon(
+                              Icons.browse_gallery,
+                              color: Colors.blue,
+                            ),
+                            title: Text(
+                              'Open Gallery...',
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.5,
+                        height: MediaQuery.of(context).size.width * 0.5,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(width: 4, color: Colors.orange),
+                          shape: BoxShape.rectangle,
+                          image: DecorationImage(
+                            image: _imageSelected3 == null
+                                ? NetworkImage(
+                                    '${Env.hostName}/mt6552410011/pickupload/trip/${widget.trip!.tripImage3!}',
+                                  )
+                                : FileImage(_imageSelected3!),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

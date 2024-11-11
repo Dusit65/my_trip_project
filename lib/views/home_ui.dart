@@ -232,7 +232,7 @@ class _HomeUIState extends State<HomeUI> {
         //   textAlign: TextAlign.center,
         // ),
         label: Text(
-          'เพิ่มการกิน',
+          'เพิ่มการเดินทาง',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: Colors.white,
