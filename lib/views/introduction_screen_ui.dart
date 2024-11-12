@@ -6,7 +6,7 @@ import 'package:my_trip_project/views/login_ui.dart';
 class IntroductionUI extends StatefulWidget {
    IntroductionUI({super.key});
   @override
-  State<IntroductionUI> createState() => _IntroductionUIState();bb
+  State<IntroductionUI> createState() => _IntroductionUIState();
 }
 
 class _IntroductionUIState extends State<IntroductionUI> {
