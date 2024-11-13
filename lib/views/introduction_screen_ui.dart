@@ -4,8 +4,7 @@ import 'package:introduction_screen/introduction_screen.dart';
 import 'package:my_trip_project/views/login_ui.dart';
 
 class IntroductionUI extends StatefulWidget {
-  const IntroductionUI({super.key});
-
+   IntroductionUI({super.key});
   @override
   State<IntroductionUI> createState() => _IntroductionUIState();
 }
