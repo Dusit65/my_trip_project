@@ -52,8 +52,9 @@ class _UpDelTripUiState extends State<UpDelTripUi> {
 //ตัวแปรเก็บตําแหน่งที่ Latitude, Longitude
   Position? currentPosition;
 //method ดึงตําแหน่งปัจจุบัน
-  void _getCurrentLocation() async {
+  Future<void> _getCurrentLocation() async {
     Position position = await _determinePosition();
+    if (!mounted) return; // Check if the widget is still in the tree
     setState(() {
       currentPosition = position;
       _latitude = position.latitude.toString();
@@ -861,6 +862,8 @@ class _UpDelTripUiState extends State<UpDelTripUi> {
                       latitude: widget.trip!.latitude,
                       longitude: widget.trip!.longitude,
                       tripImage: _image64Selected, // add tripImage
+                      tripImage2: _image64Selected, // add tripImage2
+                      tripImage3: _image64Selected, // add tripImage3
                     );
                   }
                   //call api
@@ -868,7 +871,10 @@ class _UpDelTripUiState extends State<UpDelTripUi> {
                     //ถ้าส่งข้อมูลสําเร็จ
                     if (value.message == '1') {
                       showCompleteDialog(
-                          context, 'แก้ไขบันทึกเดินทางสําเร็จOvO');
+                          context, 'แก้ไขบันทึกเดินทางสําเร็จOvO').then((value) {
+                          Navigator.pop(context, trip);
+                      });
+                    
                     } else {
                       showWaringDialog(context,
                           'แก้ไขบันทึกเดินทางไม่สําเร็จ โปรดลองใหม่อีกครั้งTwT');
